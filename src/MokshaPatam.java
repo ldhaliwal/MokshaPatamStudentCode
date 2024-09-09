@@ -1,3 +1,6 @@
+import java.util.LinkedList;
+import java.util.Queue;
+
 /**
  * Moksha Patam
  * A puzzle created by Zach Blick
@@ -10,37 +13,61 @@
 
 public class MokshaPatam {
 
-    /**
-     * TODO: Complete this function, fewestMoves(), to return the minimum number of moves
-     *  to reach the final square on a board with the given size, ladders, and snakes.
-     */
     public static int fewestMoves(int boardsize, int[][] ladders, int[][] snakes) {
-        // so far I think the best way to do this will be some sort of recursive BFS
+        boolean[] visited = new boolean[boardsize+1];
+        int[] snakeAndLadders = new int[boardsize+1];
+        int[] rollsToNode = new int[boardsize+1];
 
-        // make an array that tracks if a space has been visited or not
-        // or a queue?
+        Queue<Integer> nodesToVisit = new LinkedList<>();
 
-        //while (something that tracks if we're done) is not true
-        // if currentPosition = boardsize {
-            // return numRolls }
+        // Adds first node to the queue of nodes to be visited
+        nodesToVisit.add(1);
+        visited[1] = true;
 
-        // go through each possible dice roll
-        // for (int roll = 1; roll <= 6; roll++){
-            // currentPosition =+ roll
-            // numRolls++
+        // Add ladders into map
+        for (int i = 0; i < ladders.length; i++){
+            snakeAndLadders[ladders[i][0]] = ladders[i][1];
+        }
 
-            //if currentPosition > boardsize
-                // base case?
-                // should this be recursive??? I think so??
+        // Add snakes into map
+        for (int i = 0; i < snakes.length; i++){
+            snakeAndLadders[snakes[i][0]] = snakes[i][1];
+        }
 
-            // if currentPosition has a snake
-                //return
+        // Will continue to loop through until there are no more nodes to visit
+        while (!nodesToVisit.isEmpty()) {
+            // Pops off the first node in the queue
+            int currentNode = nodesToVisit.remove();
 
-            // if currentPosition has a ladder
-                // currentPosition == ladder[][] <-- value of second space
-                // recursive call
+            // Checks if you have reached the end of the board, and if so, returns the number of rolls
+            if (currentNode == boardsize){
+                return rollsToNode[currentNode];
+            }
 
+            // Loops through each possible roll
+            for(int i = 1; i <= 6; i++){
+                int nextNode = currentNode + i;
 
-        return 0;
+                // Ensures the node we are checking is within the range of the board
+                if (nextNode <= boardsize){
+                    // Checks if this node is connected to a snake/ladder
+                    if(snakeAndLadders[nextNode] != 0){
+                        // If it is connected to one, automatically go to the corresponding node
+                        nextNode = snakeAndLadders[nextNode];
+                    }
+
+                    // Checks if the node has been visited already
+                    if (!visited[nextNode]){
+                        // Sets the number of rolls for the next node
+                        rollsToNode[nextNode] = rollsToNode[currentNode] + 1;
+                        // Marks the current node as visited
+                        visited[nextNode] = true;
+                        // Adds next node to the queue
+                        nodesToVisit.add(nextNode);
+                    }
+                }
+            }
+        }
+        return -1;
     }
 }
